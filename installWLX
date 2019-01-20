@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 add_repo() {
-sudo echo "deb http://http.us.debian.org/debian wheezy main contrib non-free # wheezy #" >> /etc/apt/sources.list
+echo "deb http://http.us.debian.org/debian wheezy main contrib non-free # wheezy #" >> /etc/apt/sources.list
 }
 
 edit_config() {
