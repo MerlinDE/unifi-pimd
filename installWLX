@@ -1,5 +1,23 @@
 #!/usr/bin/env bash
 
+# If the color table file exists,
+if [[ -f "${coltable}" ]]; then
+    # source it
+    source ${coltable}
+# Otherwise,
+else
+    # Set these values so the installer can still run in color
+    COL_NC='\e[0m' # No Color
+    COL_LIGHT_GREEN='\e[1;32m'
+    COL_LIGHT_RED='\e[1;31m'
+    TICK="[${COL_LIGHT_GREEN}✓${COL_NC}]"
+    CROSS="[${COL_LIGHT_RED}✗${COL_NC}]"
+    INFO="[i]"
+    # shellcheck disable=SC2034
+    DONE="${COL_LIGHT_GREEN} done!${COL_NC}"
+    OVER="\\r\\033[K"
+fi
+
 add_repo() {
 grep -q 'deb http://http.us.debian.org/debian wheezy main contrib non-free' '/etc/apt/sources.list' || echo "deb http://http.us.debian.org/debian wheezy main contrib non-free" >> /etc/apt/sources.list;
 }
@@ -9,10 +27,42 @@ sed -i 's/#phyint de1 disable/phyint eth0 disable/g' /etc/pimd.conf
 }
 
 main() {
+
+    # Must be root to install
+    local str="Root user check"
+    printf "\\n"
+
+    # If the user's id is zero,
+    if [[ "${EUID}" -eq 0 ]]; then
+        # they are root and all is good
+        printf "  %b %s\\n" "${TICK}" "${str}"
+    else
+        # They do not have enough privileges, so let the user know
+        printf "  %b %s\\n" "${CROSS}" "${str}"
+        printf "  %b %bScript called with non-root privileges%b\\n" "${INFO}" "${COL_LIGHT_RED}" "${COL_NC}"
+        printf "  The unifi-pimd requires elevated privileges to install and run\\n"
+        printf "  %b Sudo utility check" "${INFO}"
+        # If the sudo command exists,
+        if is_command sudo ; then
+            printf "%b  %b Sudo utility check\\n" "${OVER}"  "${TICK}"
+            # Download the install script and run it with admin rights
+            exec curl -sSL https://raw.githubusercontent.com/bcsanford/unifi-pimd/master/installWLX | sudo bash "$@"
+            exit $?
+        # Otherwise,
+        else
+            # Let them know they need to run it as root
+            printf "%b  %b Sudo utility check\\n" "${OVER}" "${CROSS}"
+            printf "  %b Sudo is needed to install and configure unifi-pimd\\n\\n" "${INFO}"
+            printf "  %b %bPlease re-run this installer as root${COL_NC}\\n" "${INFO}" "${COL_LIGHT_RED}"
+            exit 1
+        fi
+    fi
+
+
 add_repo
-echo "Repository Added"
+printf "%b  %b Repository Added\\n" "${OVER}"  "${TICK}"
 apt-get update
-echo "Packaged Library Updated"
+printf "%b  %b Package Library Updated\\n" "${OVER}"  "${TICK}"
 apt-get -y install pimd
 #echo "pimd Installed"
 #echo "Stopping pimd for Config Edit"
