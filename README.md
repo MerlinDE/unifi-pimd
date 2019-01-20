@@ -1,3 +1,3 @@
 # unifi-pimd
 
-curl -sSL https://raw.githubusercontent.com/bcsanford/unifi-pimd/master/installWLX | bash
+curl -sSL https://raw.githubusercontent.com/bcsanford/unifi-pimd/master/installWLX | sudo bash
