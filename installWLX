@@ -5,7 +5,7 @@ echo "deb http://http.us.debian.org/debian wheezy main contrib non-free # wheezy
 }
 
 edit_config() {
-cat << EOF >> /etc/pimd.conf
+cat << EOF > /etc/pimd.conf
 phyint eth0 disable
 cand_rp time 30 priority 20
 cand_bootstrap_router priority 5
