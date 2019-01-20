@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
 add_repo() {
-set system package repository wheezy components 'main contrib non-free'
-set system package repository wheezy distribution wheezy
-set system package repository wheezy url http://http.us.debian.org/debian
+sudo echo "deb http://http.us.debian.org/debian wheezy main contrib non-free # wheezy #" >> /etc/apt/sources.list
 }
 
 edit_config() {
