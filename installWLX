@@ -21,7 +21,6 @@ edit_config
 echo "Starting pimd"
 service pimd start
 
-pimd -r
 }
 
 main "$@"
