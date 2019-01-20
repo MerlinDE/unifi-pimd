@@ -5,14 +5,7 @@ echo "deb http://http.us.debian.org/debian wheezy main contrib non-free # wheezy
 }
 
 edit_config() {
-cat << EOF > /etc/pimd.conf
-phyint eth0 disable
-cand_rp time 30 priority 20
-cand_bootstrap_router priority 5
-group_prefix 224.0.0.0 masklen 4
-switch_data_threshold		rate 50000 interval 20
-switch_register_threshold	rate 50000 interval 20
-EOF
+sed -i 's/#phyint de1 disable/phyint eth0 disable/g' /etc/pimd.conf
 }
 
 main() {
