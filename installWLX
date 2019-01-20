@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 add_repo() {
-configure
+
 set system package repository wheezy components 'main contrib non-free'
 set system package repository wheezy distribution wheezy
 set system package repository wheezy url http://http.us.debian.org/debian
-commit ; save
+
 }
 
 edit_config() {
