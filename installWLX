@@ -10,9 +10,9 @@ sed -i 's/#phyint de1 disable/phyint eth0 disable/g' /etc/pimd.conf
 
 main() {
 add_repo
-#echo "Repository Added"
+echo "Repository Added"
 apt-get update
-#echo "Packaged Library Updated"
+echo "Packaged Library Updated"
 apt-get -y install pimd
 #echo "pimd Installed"
 #echo "Stopping pimd for Config Edit"
