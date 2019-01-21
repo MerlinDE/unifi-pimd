@@ -17,6 +17,13 @@ else
     DONE="${COL_LIGHT_GREEN} done!${COL_NC}"
     OVER="\\r\\033[K"
 fi
+is_command() {
+    # Checks for existence of string passed in as only function argument.
+    # Exit value of 0 when exists, 1 if not exists. Value is the result
+    # of the `command` shell built-in call.
+    local check_command="$1"
+    command -v "${check_command}" >/dev/null 2>&1
+}
 
 add_repo() {
 grep -q 'deb http://http.us.debian.org/debian wheezy main contrib non-free' '/etc/apt/sources.list' || echo "deb http://http.us.debian.org/debian wheezy main contrib non-free" >> /etc/apt/sources.list;
@@ -24,6 +31,10 @@ grep -q 'deb http://http.us.debian.org/debian wheezy main contrib non-free' '/et
 
 edit_config() {
 sed -i 's/#phyint de1 disable/phyint eth0 disable/g' /etc/pimd.conf
+}
+
+run_install() {
+apt-get -y install pimd
 }
 
 main() {
@@ -58,19 +69,17 @@ main() {
         fi
     fi
 
-
 add_repo
 printf "%b  %b Repository Added\\n" "${OVER}"  "${TICK}"
 apt-get update
 printf "%b  %b Package Library Updated\\n" "${OVER}"  "${TICK}"
-apt-get -y install pimd
+run_install
 #echo "pimd Installed"
 #echo "Stopping pimd for Config Edit"
 service pimd stop
 edit_config
 #echo "Starting pimd"
 service pimd start
-
 }
 
 main "$@"
