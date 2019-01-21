@@ -139,7 +139,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 0.8.4\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.8.5\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
