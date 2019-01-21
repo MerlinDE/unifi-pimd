@@ -93,7 +93,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 0.6.3\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.6.4\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
@@ -108,7 +108,7 @@ printf "  %b Sudo utility check" "${INFO}"
 if is_command sudo ; then
 printf "%b  %b Sudo utility check\\n" "${OVER}"  "${TICK}"
 # Download the install script and run it with admin rights
-exec curl -sSL https://raw.githubusercontent.com/bcsanford/unifi-pimd/master/installWLX | sudo bash "$@"
+exec curl -sSL https://raw.githubusercontent.com/bcsanford/unifi-pimd/master/install | sudo bash "$@"
 exit $?
 else
 printf "%b  %b Sudo utility check\\n" "${OVER}" "${CROSS}"
