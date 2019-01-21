@@ -68,8 +68,8 @@ fi
 }
 
 edit_config() {
-INT=route|grep default|awk '{print $8}'
-sed -i 's/#phyint de1 disable/phyint ${INT} disable/g' /etc/pimd.conf
+INT=$(route|grep default|awk '{print $8}')
+sed -i "s/#phyint de1 disable/phyint $INT disable/g" /etc/pimd.conf
 }
 
 run_install() {
