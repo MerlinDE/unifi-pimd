@@ -79,7 +79,7 @@ unset WAN2I
 DEFRT=$(route|grep default|awk '{print $8}')
 WAN1T=$(cat /config/unifi|grep wan=|cut -d= -f2|jq -r .type)
 WAN2T=$(cat /config/unifi|grep wan2=|cut -d= -f2|jq -r .type)
-CURRENT=$(egrep '^(#phyint|phyint)' '/etc/pimd.conf
+CURRENT=$(egrep '^(#phyint|phyint)' '/etc/pimd.conf')
 if [[ $WAN1T != "disabled" ]]; then
 	WAN1I=$(cat /config/unifi|grep wan=|cut -d= -f2|jq -r .ifname)
 	if [ $WAN1I ]; then
@@ -138,7 +138,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 0.8.2\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.8.3\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
