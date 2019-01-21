@@ -69,7 +69,11 @@ fi
 
 edit_config() {
 INT=$(route|grep default|awk '{print $8}')
+printf "%b  %b Excluding WAN: $INT \\n" "${OVER}"  "${INFO}"
 sed -i "s/#phyint de1 disable/phyint $INT disable/g" /etc/pimd.conf
+if grep "phyint $INT disable" '/etc/pimd.conf'; then
+printf "%b  %b WAN $INT Excluded\\n" "${OVER}"  "${TICK}"
+fi
 }
 
 run_install() {
@@ -89,7 +93,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 0.6.1\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.6.2\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
