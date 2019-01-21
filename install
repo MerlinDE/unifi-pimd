@@ -79,7 +79,17 @@ unset WAN2I
 DEFRT=$(route|grep default|awk '{print $8}')
 WAN1T=$(cat /config/unifi|grep wan=|cut -d= -f2|jq -r .type)
 WAN2T=$(cat /config/unifi|grep wan2=|cut -d= -f2|jq -r .type)
-CURRENT=$(egrep '^(#phyint|phyint)' '/etc/pimd.conf')
+CURRENT=$(egrep '^(#phyint|phyint).*disable$' '/etc/pimd.conf')
+if (( $(grep -c . <<<"$CURRENT") > 1 )); then
+LINE2=$(echo -e "$CURRENT" | sed -n '2p')
+CURRENT=$(echo -e "$CURRENT" | sed -n '1p')
+printf "%b  %b Removing Second Line: $LINE2 \\n" "${OVER}"  "${INFO}"
+sed -i "/\b$LINE2\b/d" /etc/pimd.conf
+if grep -Fq $LINE2 '/etc/apt/sources.list'; then
+printf "%b  %b Second Line Removed: $LINE2 \\n" "${OVER}"  "${TICK}"
+else
+printf "%b  %b Second Line was not Removed: $LINE2 \\n" "${OVER}"  "${CROSS}"
+fi
 printf "%b  %b The following line will be replaced: $CURRENT \\n" "${OVER}"  "${INFO}"
 if [[ $WAN1T != "disabled" ]]; then
 	WAN1I=$(cat /config/unifi|grep wan=|cut -d= -f2|jq -r .ifname)
@@ -98,23 +108,23 @@ if [ $WAN1I ] && [ $WAN2I ];then
 EXCL=$(echo $WAN1I $WAN2I)
 printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
 INT=$(echo -e "phyint $WAN1I disable\nphyint $WAN2I disable")
-sed -i "s/a\{$CURRENT}/$INT/g" /etc/pimd.conf
+sed -i "s/a\$CURRENT/$INT/g" /etc/pimd.conf
 elif [ $WAN2I ]; then
 EXCL=$(echo $WAN2I)
 printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
 INT=$(echo -e "phyint $WAN2I disable")
-sed -i "s/a\{$CURRENT}/$INT/g" /etc/pimd.conf
+sed -i "s/a\$CURRENT/$INT/g" /etc/pimd.conf
 elif [ $WAN1I ]; then
 EXCL=$(echo $WAN1I)
 printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
 INT=$(echo -e "phyint $WAN1I disable")
-sed -i "s/a\{$CURRENT}/$INT/g" /etc/pimd.conf
+sed -i "s/a\$CURRENT/$INT/g" /etc/pimd.conf
 else
 EXCL=$(echo $DEFRT)
 printf "%b  %b Using Default Route: $EXCL \\n" "${OVER}"  "${INFO}"
 printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
 INT=$(echo -e "phyint $DEFRT disable")
-sed -i "s/a\{$CURRENT}/$INT/g" /etc/pimd.conf
+sed -i "s/a\$CURRENT/$INT/g" /etc/pimd.conf
 fi
 
 if grep -q "$INT" '/etc/pimd.conf'; then
@@ -139,7 +149,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 0.9.1\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.9.2\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
