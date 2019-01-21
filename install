@@ -74,6 +74,8 @@ fi
 }
 
 edit_config() {
+unset WAN1I
+unset WAN2I
 DEFRT=$(route|grep default|awk '{print $8}')
 WAN1T=$(cat /config/unifi|grep wan=|cut -d= -f2|jq -r .type)
 WAN2T=$(cat /config/unifi|grep wan2=|cut -d= -f2|jq -r .type)
@@ -136,7 +138,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 0.7.2\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.7.3\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
