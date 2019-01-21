@@ -85,10 +85,11 @@ LINE2=$(echo -e "$CURRENT" | sed -n '2p')
 CURRENT=$(echo -e "$CURRENT" | sed -n '1p')
 printf "%b  %b Removing Second Line: $LINE2 \\n" "${OVER}"  "${INFO}"
 sed -i "/\b$LINE2\b/d" /etc/pimd.conf
-if grep -Fq $LINE2 '/etc/apt/sources.list'; then
-printf "%b  %b Second Line Removed: $LINE2 \\n" "${OVER}"  "${TICK}"
-else
-printf "%b  %b Second Line was not Removed: $LINE2 \\n" "${OVER}"  "${CROSS}"
+	if grep -Fq $LINE2 '/etc/apt/sources.list'; then
+	printf "%b  %b Second Line Removed: $LINE2 \\n" "${OVER}"  "${TICK}"
+	else
+	printf "%b  %b Second Line was not Removed: $LINE2 \\n" "${OVER}"  "${CROSS}"
+	fi
 fi
 printf "%b  %b The following line will be replaced: $CURRENT \\n" "${OVER}"  "${INFO}"
 if [[ $WAN1T != "disabled" ]]; then
@@ -149,7 +150,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 0.9.2\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.9.3\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
