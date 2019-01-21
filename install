@@ -82,28 +82,28 @@ WAN2T=$(cat /config/unifi|grep wan2=|cut -d= -f2|jq -r .type)
 CURRENT=$(egrep '^(#phyint|phyint)' '/etc/pimd.conf')
 if [[ WAN1T != "disabled" ]]; then
 	WAN1I=$(cat /config/unifi|grep wan=|cut -d= -f2|jq -r .ifname)
-	if [ $WAN1I ]; then
+	if [ ! -z $WAN1I ]; then
 	printf "%b  %b Found WAN1: $WAN1I \\n" "${OVER}"  "${INFO}"
 	fi
 fi
 if [[ WAN2T != "disabled" ]]; then
 	WAN2I=$(cat /config/unifi|grep wan2=|cut -d= -f2|jq -r .ifname)
-	if [ $WAN2I ]; then
+	if [ ! -z $WAN2I ]; then
 	printf "%b  %b Found WAN2: $WAN2I \\n" "${OVER}"  "${INFO}"
 	fi
 fi
 
-if [ $WAN1I ] && [ $WAN2I ];then
+if [ ! -z $WAN1I ] && [ ! -z $WAN2I ];then
 EXCL=$(echo $WAN1I $WAN2I)
 printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
 INT=$(echo -e "phyint $WAN1I disable\nphyint $WAN2I disable")
 sed -i "s/$CURRENT/$INT/g" /etc/pimd.conf
-elif [ $WAN2I ]; then
+elif [ ! -z $WAN2I ]; then
 EXCL=$(echo $WAN1I)
 printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
 INT=$(echo -e "phyint $WAN1I disable")
 sed -i "s/$CURRENT/$INT/g" /etc/pimd.conf
-elif [ $WAN1I ]; then
+elif [ ! -z $WAN1I ]; then
 EXCL=$(echo $WAN2I)
 printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
 INT=$(echo -e "phyint $WAN2I disable")
@@ -138,7 +138,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 0.7.5\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.7.6\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
