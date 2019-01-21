@@ -8,6 +8,7 @@ if [[ -f "${coltable}" ]]; then
 else
     # Set these values so the installer can still run in color
     COL_NC='\e[0m' # No Color
+	COL_LIGHT_BLUE='\e[34;40m'
     COL_LIGHT_GREEN='\e[1;32m'
     COL_LIGHT_RED='\e[1;31m'
     TICK="[${COL_LIGHT_GREEN}✓${COL_NC}]"
@@ -17,6 +18,37 @@ else
     DONE="${COL_LIGHT_GREEN} done!${COL_NC}"
     OVER="\\r\\033[K"
 fi
+
+accii_unifi() {
+echo -e "
+${COL_LIGHT_BLUE}llllllllllllllllllllllllllllllllllllllllllllllllll
+llllllllllllllllllllllllllllllllllllllllllllllllll
+llllllllllllllllllllllllllllllllllllllllllllllllll
+llllllllllllllllllllllllllllllllllllllllllllllllll
+lllllllll${COL_NC}k0o${COL_LIGHT_BLUE}llllllllllllllllllllll${COL_NC}dxkO00d${COL_LIGHT_BLUE}lllllllll
+lllllllll${COL_NC}dko${COL_LIGHT_BLUE}lll${COL_NC}O0${COL_LIGHT_BLUE}llllllllllllll${COL_NC}dKWMMMMMMk${COL_LIGHT_BLUE}lllllllll
+lllllllllloll${COL_NC}0Xkxxx${COL_LIGHT_BLUE}lllllllllll${COL_NC}oWMMMMMMMMk${COL_LIGHT_BLUE}lllllllll
+lllllllll${COL_NC}KMxlodod00${COL_LIGHT_BLUE}lllllllllll${COL_NC}kMMMMMMMMMk${COL_LIGHT_BLUE}lllllllll
+lllllllll${COL_NC}KMx${COL_LIGHT_BLUE}lll${COL_NC}0X${COL_LIGHT_BLUE}lllllllllllll${COL_NC}kMMMMMMMMMk${COL_LIGHT_BLUE}lllllllll
+lllllllll${COL_NC}KMxl0Xolxx${COL_LIGHT_BLUE}lllllllllll${COL_NC}kMMMMMMMMMk${COL_LIGHT_BLUE}lllllllll
+lllllllll${COL_NC}KMxloollWWo${COL_LIGHT_BLUE}llllllllll${COL_NC}kMMMMMMMMMk${COL_LIGHT_BLUE}lllllllll
+lllllllll${COL_NC}KMklXWdlWWo${COL_LIGHT_BLUE}llllllllll${COL_NC}kMMMMMMMMMk${COL_LIGHT_BLUE}lllllllll
+lllllllll${COL_NC}KMMMMMdlWWo${COL_LIGHT_BLUE}llllllllll${COL_NC}kMMMMMMMMWo${COL_LIGHT_BLUE}lllllllll
+lllllllll${COL_NC}KMMMMMWWMWo${COL_LIGHT_BLUE}llllllllll${COL_NC}kMMMMMMMMOo${COL_LIGHT_BLUE}lllllllll
+lllllllll${COL_NC}KMMMMMMMMWo${COL_LIGHT_BLUE}llllllllll${COL_NC}kMMMMMMM00x${COL_LIGHT_BLUE}lllllllll
+lllllllll${COL_NC}kMMMMMMMMWo${COL_LIGHT_BLUE}llllllllll${COL_NC}kMMMMMWOKWo${COL_LIGHT_BLUE}lllllllll
+llllllllll${COL_NC}XMMMMMMMMo${COL_LIGHT_BLUE}llllllllll${COL_NC}kMMWK00WMO${COL_LIGHT_BLUE}llllllllll
+llllllllll${COL_NC}oXMMMMMMMOk0kxdoooookKKKNMMMO${COL_LIGHT_BLUE}lllllllllll
+llllllllllll${COL_NC}kNMMMMMWOKMMMMMMMMMMMMMMKd${COL_LIGHT_BLUE}llllllllllll
+llllllllllllll${COL_NC}d0NMMMMKOXMMMMMMMMWXOo${COL_LIGHT_BLUE}llllllllllllll
+lllllllllllllllll${COL_NC}odkO00kxOK00Oxd${COL_LIGHT_BLUE}llllllllllllllllll
+llllllllllllllllllllllllllllllllllllllllllllllllll
+llllllllllllllllllllllllllllllllllllllllllllllllll
+llllllllllllllllllllllllllllllllllllllllllllllllll
+llllllllllllllllllllllllllllllllllllllllllllllllll
+"
+}
+
 is_command() {
     # Checks for existence of string passed in as only function argument.
     # Exit value of 0 when exists, 1 if not exists. Value is the result
@@ -56,7 +88,8 @@ fi
 }
 
 main() {
-printf "%b  %b unifi-pimd Version: 0.6\\n" "${OVER}"  "${INFO}"
+accii_unifi
+printf "%b  %b unifi-pimd Version: 0.6.1\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
