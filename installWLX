@@ -36,6 +36,7 @@ fi
 }
 
 edit_config() {
+echo $@
 sed -i 's/#phyint de1 disable/phyint eth0 disable/g' /etc/pimd.conf
 }
 
