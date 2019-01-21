@@ -52,7 +52,7 @@ fi
 }
 
 main() {
-printf "%b  %b Version: 0.2\\n" "${OVER}"  "${INFO}"
+printf "%b  %b pimd-purge Version: 0.3\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
