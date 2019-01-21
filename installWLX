@@ -26,7 +26,12 @@ is_command() {
 }
 
 add_repo() {
-grep -q 'deb http://http.us.debian.org/debian wheezy main contrib non-free' '/etc/apt/sources.list' || echo "deb http://http.us.debian.org/debian wheezy main contrib non-free" >> /etc/apt/sources.list;
+if grep -Fq 'deb http://http.us.debian.org/debian wheezy main contrib non-free' '/etc/apt/sources.list'; then
+printf "%b  %b Repository Added\\n" "${OVER}"  "${INFO}"
+else
+echo "deb http://http.us.debian.org/debian wheezy main contrib non-free" >> /etc/apt/sources.list
+add_repo
+fi
 }
 
 edit_config() {
@@ -37,37 +42,41 @@ run_install() {
 apt-get -y install pimd
 }
 
+rw_check() {
+epoch=$(date +%s)
+touch /etc/rwcheck-$epoch
+if [[ -f /etc/rwcheck-$epoch ]]; then
+printf "%b  %b Read/Write Access Confirmed\\n" "${OVER}"  "${TICK}"
+rm /etc/rwcheck-$epoch
+else            
+printf "%b  %b Read Only Access\\n" "${OVER}" "${CROSS}"
+fi 
+}
+
 main() {
-
-    # Must be root to install
-    local str="Root user check"
-    printf "\\n"
-
-    # If the user's id is zero,
-    if [[ "${EUID}" -eq 0 ]]; then
-        # they are root and all is good
-        printf "  %b %s\\n" "${TICK}" "${str}"
-    else
-        # They do not have enough privileges, so let the user know
-        printf "  %b %s\\n" "${CROSS}" "${str}"
-        printf "  %b %bScript called with non-root privileges%b\\n" "${INFO}" "${COL_LIGHT_RED}" "${COL_NC}"
-        printf "  The unifi-pimd requires elevated privileges to install and run\\n"
-        printf "  %b Sudo utility check" "${INFO}"
-        # If the sudo command exists,
-        if is_command sudo ; then
-            printf "%b  %b Sudo utility check\\n" "${OVER}"  "${TICK}"
-            # Download the install script and run it with admin rights
-            exec curl -sSL https://raw.githubusercontent.com/bcsanford/unifi-pimd/master/installWLX | sudo bash "$@"
-            exit $?
-        # Otherwise,
-        else
-            # Let them know they need to run it as root
-            printf "%b  %b Sudo utility check\\n" "${OVER}" "${CROSS}"
-            printf "  %b Sudo is needed to install and configure unifi-pimd\\n\\n" "${INFO}"
-            printf "  %b %bPlease re-run this installer as root${COL_NC}\\n" "${INFO}" "${COL_LIGHT_RED}"
-            exit 1
-        fi
-    fi
+rw_check
+# Must be root to install
+local str="Root user check"
+printf "\\n"
+if [[ "${EUID}" -eq 0 ]]; then
+printf "  %b %s\\n" "${TICK}" "${str}"
+else
+printf "  %b %s\\n" "${CROSS}" "${str}"
+printf "  %b %bScript called with non-root privileges%b\\n" "${INFO}" "${COL_LIGHT_RED}" "${COL_NC}"
+printf "  The unifi-pimd requires elevated privileges to install and run\\n"
+printf "  %b Sudo utility check" "${INFO}"
+if is_command sudo ; then
+printf "%b  %b Sudo utility check\\n" "${OVER}"  "${TICK}"
+# Download the install script and run it with admin rights
+exec curl -sSL https://raw.githubusercontent.com/bcsanford/unifi-pimd/master/installWLX | sudo bash "$@"
+exit $?
+else
+printf "%b  %b Sudo utility check\\n" "${OVER}" "${CROSS}"
+printf "  %b Sudo is needed to install and configure unifi-pimd\\n\\n" "${INFO}"
+printf "  %b %bPlease re-run this installer as root${COL_NC}\\n" "${INFO}" "${COL_LIGHT_RED}"
+exit 1
+fi
+fi
 
 add_repo
 printf "%b  %b Repository Added\\n" "${OVER}"  "${TICK}"
