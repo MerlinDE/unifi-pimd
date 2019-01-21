@@ -71,7 +71,7 @@ edit_config() {
 INT=$(route|grep default|awk '{print $8}')
 printf "%b  %b Excluding WAN: $INT \\n" "${OVER}"  "${INFO}"
 sed -i "s/#phyint de1 disable/phyint $INT disable/g" /etc/pimd.conf
-if grep "phyint $INT disable" '/etc/pimd.conf'; then
+if grep -q "phyint $INT disable" '/etc/pimd.conf'; then
 printf "%b  %b WAN $INT Excluded\\n" "${OVER}"  "${TICK}"
 fi
 }
