@@ -56,7 +56,7 @@ fi
 }
 
 main() {
-printf "%b  %b Version: 0.5\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.6\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
