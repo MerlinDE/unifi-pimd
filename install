@@ -102,6 +102,7 @@ INT=$(echo -e "phyint $WAN2I disable")
 sed -i "s/#phyint de1 disable/$INT/g" /etc/pimd.conf
 else
 EXCL=$(echo $DEFRT)
+printf "%b  %b Using Default Route: $EXCL \\n" "${OVER}"  "${INFO}"
 printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
 INT=$(echo -e "phyint $DEFRT disable")
 sed -i "s/#phyint de1 disable/$INT/g" /etc/pimd.conf
@@ -129,7 +130,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 0.6.7\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.6.8\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
