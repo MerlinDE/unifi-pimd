@@ -59,11 +59,17 @@ is_command() {
 
 add_repo() {
 if grep -Fq 'deb http://http.us.debian.org/debian wheezy main contrib non-free' '/etc/apt/sources.list'; then
-printf "%b  %b Repository Added\\n" "${OVER}"  "${TICK}"
+	printf "%b  %b Repository Added\\n" "${OVER}"  "${TICK}"
 else
 printf "%b  %b Adding Repository\\n" "${OVER}"  "${INFO}"
 echo "deb http://http.us.debian.org/debian wheezy main contrib non-free" >> /etc/apt/sources.list
-add_repo
+	if grep -Fq 'deb http://http.us.debian.org/debian wheezy main contrib non-free' '/etc/apt/sources.list'; then
+	printf "%b  %b Repository Added\\n" "${OVER}"  "${TICK}"
+	apt-get update
+	printf "%b  %b Package Library Updated\\n" "${OVER}"  "${TICK}"
+	else
+	add_repo
+	fi
 fi
 }
 
@@ -130,7 +136,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 0.6.8\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.6.9\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
@@ -156,8 +162,6 @@ fi
 fi
 
 add_repo
-apt-get update
-printf "%b  %b Package Library Updated\\n" "${OVER}"  "${TICK}"
 run_install
 #echo "pimd Installed"
 #echo "Stopping pimd for Config Edit"
