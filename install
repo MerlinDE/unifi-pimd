@@ -73,6 +73,13 @@ echo "deb http://http.us.debian.org/debian wheezy main contrib non-free" >> /etc
 fi
 }
 
+usg_check(){
+if [[ -f /config/unifi ]]; then
+printf "%b  %b USG Detected\\n" "${OVER}"  "${INFO}"
+edit_config
+fi 
+}
+
 edit_config() {
 unset WAN1I
 unset WAN2I
@@ -180,7 +187,7 @@ run_install
 #echo "pimd Installed"
 #echo "Stopping pimd for Config Edit"
 service pimd stop
-edit_config
+usg_check
 #echo "Starting pimd"
 service pimd start
 }
