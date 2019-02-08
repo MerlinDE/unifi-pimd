@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 
 # If the color table file exists,
 if [[ -f "${coltable}" ]]; then
@@ -157,7 +157,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 0.9.6\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.9.7\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
