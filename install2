@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/sh
 
 # If the color table file exists,
 if [[ -f "${coltable}" ]]; then
