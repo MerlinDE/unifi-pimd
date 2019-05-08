@@ -58,12 +58,12 @@ is_command() {
 }
 
 add_repo() {
-if grep -Fq 'deb http://http.us.debian.org/debian wheezy main contrib non-free' '/etc/apt/sources.list'; then
+if grep -Fq 'deb http://archive.debian.org/debian wheezy main contrib non-free' '/etc/apt/sources.list'; then
 	printf "%b  %b Repository Added\\n" "${OVER}"  "${TICK}"
 else
 printf "%b  %b Adding Repository\\n" "${OVER}"  "${INFO}"
-echo "deb http://http.us.debian.org/debian wheezy main contrib non-free" >> /etc/apt/sources.list
-	if grep -Fq 'deb http://http.us.debian.org/debian wheezy main contrib non-free' '/etc/apt/sources.list'; then
+echo "deb http://archive.debian.org/debian wheezy main contrib non-free" >> /etc/apt/sources.list
+	if grep -Fq 'deb http://archive.debian.org/debian wheezy main contrib non-free' '/etc/apt/sources.list'; then
 	printf "%b  %b Repository Added\\n" "${OVER}"  "${TICK}"
 	apt-get update
 	printf "%b  %b Package Library Updated\\n" "${OVER}"  "${TICK}"
