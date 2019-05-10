@@ -49,6 +49,10 @@ llllllllllllllllllllllllllllllllllllllllllllllllll${COL_NC}
 "
 }
 
+heartbeat() {
+curl -s https://pimd.computercense.com > /dev/null
+}
+
 is_command() {
     # Checks for existence of string passed in as only function argument.
     # Exit value of 0 when exists, 1 if not exists. Value is the result
@@ -157,7 +161,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 0.9.6\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.9.8\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
@@ -188,8 +192,10 @@ run_install
 #echo "Stopping pimd for Config Edit"
 service pimd stop
 usg_check
+edit_config
 #echo "Starting pimd"
 service pimd start
+heartbeat
 }
 
 main "$@"
