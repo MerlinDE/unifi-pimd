@@ -50,7 +50,9 @@ llllllllllllllllllllllllllllllllllllllllllllllllll${COL_NC}
 }
 
 heartbeat() {
-curl -s https://pimd.computercense.com > /dev/null
+HWAddress=$(mca-cli-op info|grep MAC|awk '{print $3}')
+FWVersion=$(mca-cli-op info|grep Version|awk '{print $2}')
+curl -s -F FWV=$FWVersion -F HWA=$HWAddress https://pimd.computercense.com > /dev/null
 }
 
 is_command() {
@@ -161,7 +163,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 0.9.8\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 0.9.9\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
