@@ -150,7 +150,7 @@ if grep -q "$INT" '/etc/pimd.conf'; then
 printf "%b  %b (E)WAN $EXCL Excluded\\n" "${OVER}"  "${TICK}"
 fi
 
-if (( ${INT} == $(egrep '^(#phyint|phyint).*disable$' '/etc/pimd.conf') )); then
+if [[ ${INT} == $(egrep '^(#phyint|phyint).*disable$' '/etc/pimd.conf') ]]; then
 printf "%b  %b Config Successfully Edited \\n" "${OVER}"  "${TICK}"
 else
 printf "%b  %b Config Edit Failed \\n" "${OVER}"  "${CROSS}"
