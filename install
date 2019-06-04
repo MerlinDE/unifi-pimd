@@ -50,9 +50,10 @@ llllllllllllllllllllllllllllllllllllllllllllllllll${COL_NC}
 }
 
 heartbeat() {
+HWModel=$(mca-cli-op info|grep Model|awk '{print $2}')
 HWAddress=$(mca-cli-op info|grep MAC|awk '{print $3}')
 FWVersion=$(mca-cli-op info|grep Version|awk '{print $2}')
-curl -s -F FWV=$FWVersion -F HWA=$HWAddress https://pimd.computercense.com > /dev/null
+curl -s -F HWM=$HWModel -F FWV=$FWVersion -F HWA=$HWAddress https://pimd.computercense.com > /dev/null
 }
 
 is_command() {
@@ -98,7 +99,7 @@ LINE2=$(echo -e "$CURRENT" | sed -n '2p')
 CURRENT=$(echo -e "$CURRENT" | sed -n '1p')
 printf "%b  %b Removing Second Line: $LINE2 \\n" "${OVER}"  "${INFO}"
 sed -i "/\b$LINE2\b/d" /etc/pimd.conf
-	if grep -Fq $LINE2 '/etc/apt/sources.list'; then
+	if grep -Fq $LINE2 '/etc/pimd.conf'; then
 	printf "%b  %b Second Line Removed: $LINE2 \\n" "${OVER}"  "${TICK}"
 	else
 	printf "%b  %b Second Line was not Removed: $LINE2 \\n" "${OVER}"  "${CROSS}"
@@ -163,7 +164,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 1.0.0\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 1.0.1\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
