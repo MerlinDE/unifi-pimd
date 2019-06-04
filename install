@@ -150,11 +150,7 @@ if grep -q "$INT" '/etc/pimd.conf'; then
 printf "%b  %b (E)WAN $EXCL Excluded\\n" "${OVER}"  "${TICK}"
 fi
 
-if [[ ${INT} == $(egrep '^(#phyint|phyint).*disable$' '/etc/pimd.conf') ]]; then
-printf "%b  %b Config Successfully Edited \\n" "${OVER}"  "${TICK}"
-else
-printf "%b  %b Config Edit Failed \\n" "${OVER}"  "${CROSS}"
-fi
+
 }
 
 run_install() {
@@ -174,7 +170,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 1.0.8\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 1.0.9\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
