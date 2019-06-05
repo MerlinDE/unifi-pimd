@@ -124,13 +124,13 @@ EXCL=$(echo $WAN1I $WAN2I)
 printf "%b  %b (A)Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
 INT=$(echo -e "phyint $WAN1I disable\nphyint $WAN2I disable")
 printf "%b  %b Replace with: ${INT} \\n" "${OVER}"  "${INFO}"
-sed -i "s/\${CURRENT}/${INT}/g" /etc/pimd.conf
+awk -v srch="$CURRENT" -v repl="$INT" '{ sub(srch,repl)}1' /etc/pimd.conf > /tmp/pimd.conf && mv /tmp/pimd.conf /etc/pimd.conf
 elif [ $WAN2I ]; then
 EXCL=$(echo $WAN2I)
 printf "%b  %b (B)Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
 INT=$(echo -e "phyint $WAN2I disable")
 printf "%b  %b Replace with: ${INT} \\n" "${OVER}"  "${INFO}"
-sed -i "s/\${CURRENT}/${INT}/g" /etc/pimd.conf
+awk -v srch="$CURRENT" -v repl="$INT" '{ sub(srch,repl)}1' /etc/pimd.conf > /tmp/pimd.conf && mv /tmp/pimd.conf /etc/pimd.conf
 elif [ $WAN1I ]; then
 EXCL=$(echo $WAN1I)
 printf "%b  %b (C)Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
@@ -144,7 +144,7 @@ printf "%b  %b Using Default Route: $EXCL \\n" "${OVER}"  "${INFO}"
 printf "%b  %b (D)Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
 INT=$(echo -e "phyint $DEFRT disable")
 printf "%b  %b Replace with: ${INT} \\n" "${OVER}"  "${INFO}"
-sed -i "s/\${CURRENT}/${INT}/g" /etc/pimd.conf
+awk -v srch="$CURRENT" -v repl="$INT" '{ sub(srch,repl)}1' /etc/pimd.conf > /tmp/pimd.conf && mv /tmp/pimd.conf /etc/pimd.conf
 fi
 
 if grep -q "$INT" '/etc/pimd.conf'; then
@@ -176,7 +176,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 1.3.1\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 1.3.2\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
