@@ -136,7 +136,7 @@ EXCL=$(echo $WAN1I)
 printf "%b  %b (C)Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
 INT=$(echo -e "phyint $WAN1I disable")
 printf "%b  %b Replace with: ${INT} \\n" "${OVER}"  "${INFO}"
-sed -i "s|\${CURRENT}|${INT}|g" /etc/pimd.conf
+sed -i "s|\${CURRENT}|${INT}|g" "/etc/pimd.conf"
 else
 EXCL=$(echo $DEFRT)
 printf "%b  %b Using Default Route: $EXCL \\n" "${OVER}"  "${INFO}"
@@ -175,7 +175,7 @@ fi
 
 main() {
 accii_unifi
-printf "%b  %b unifi-pimd Version: 1.2.5\\n" "${OVER}"  "${INFO}"
+printf "%b  %b unifi-pimd Version: 1.2.6\\n" "${OVER}"  "${INFO}"
 rw_check
 # Must be root to install
 local str="Root user check"
