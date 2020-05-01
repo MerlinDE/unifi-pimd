@@ -1,28 +1,28 @@
 #!/usr/bin/env bash
 
-VERSION="1.3.5"
+VERSION="2.0.0"
 
 # If the color table file exists,
 if [[ -f "${coltable}" ]]; then
-    # source it
-    source ${coltable}
+  # source it
+  source ${coltable}
 # Otherwise,
 else
-    # Set these values so the installer can still run in color
-    COL_NC='\e[0m' # No Color
-	COL_LIGHT_BLUE='\e[34;40m'
-    COL_LIGHT_GREEN='\e[1;32m'
-    COL_LIGHT_RED='\e[1;31m'
-    TICK="[${COL_LIGHT_GREEN}✓${COL_NC}]"
-    CROSS="[${COL_LIGHT_RED}✗${COL_NC}]"
-    INFO="[i]"
-    # shellcheck disable=SC2034
-    DONE="${COL_LIGHT_GREEN} done!${COL_NC}"
-    OVER="\\r\\033[K"
+  # Set these values so the installer can still run in color
+  COL_NC='\e[0m' # No Color
+  COL_LIGHT_BLUE='\e[34;40m'
+  COL_LIGHT_GREEN='\e[1;32m'
+  COL_LIGHT_RED='\e[1;31m'
+  TICK="[${COL_LIGHT_GREEN}✓${COL_NC}]"
+  CROSS="[${COL_LIGHT_RED}✗${COL_NC}]"
+  INFO="[i]"
+  # shellcheck disable=SC2034
+  DONE="${COL_LIGHT_GREEN} done!${COL_NC}"
+  OVER="\\r\\033[K"
 fi
 
 accii_unifi() {
-echo -e "
+  echo -e "
 ${COL_LIGHT_BLUE}llllllllllllllllllllllllllllllllllllllllllllllllll
 llllllllllllllllllllllllllllllllllllllllllllllllll
 llllllllllllllllllllllllllllllllllllllllllllllllll
@@ -52,164 +52,177 @@ llllllllllllllllllllllllllllllllllllllllllllllllll${COL_NC}
 }
 
 heartbeat() {
-HWModel=$(mca-cli-op info|grep Model|awk '{print $2}')
-HWAddress=$(mca-cli-op info|grep MAC|awk '{print $3}')
-FWVersion=$(mca-cli-op info|grep Version|awk '{print $2}')
-MANAGER=$(who|awk '{print $1}')
-curl -s -F HWM=$HWModel -F FWV=$FWVersion -F HWA=$HWAddress -F MANAGER=$MANAGER https://pimd.computercense.com > /dev/null
+  HWModel=$(mca-cli-op info | grep Model | awk '{print $2}')
+  HWAddress=$(mca-cli-op info | grep MAC | awk '{print $3}')
+  FWVersion=$(mca-cli-op info | grep Version | awk '{print $2}')
+  MANAGER=$(who | awk '{print $1}')
+  curl -s -F HWM=$HWModel -F FWV=$FWVersion -F HWA=$HWAddress -F MANAGER=$MANAGER https://pimd.computercense.com >/dev/null
 }
 
 is_command() {
-    # Checks for existence of string passed in as only function argument.
-    # Exit value of 0 when exists, 1 if not exists. Value is the result
-    # of the `command` shell built-in call.
-    local check_command="$1"
-    command -v "${check_command}" >/dev/null 2>&1
+  # Checks for existence of string passed in as only function argument.
+  # Exit value of 0 when exists, 1 if not exists. Value is the result
+  # of the `command` shell built-in call.
+  local check_command="$1"
+  command -v "${check_command}" >/dev/null 2>&1
+}
+
+add_repos() {
+  REPOS=("deb http://archive.debian.org/debian wheezy main contrib non-free" "deb [check-valid-until=no] http://archive.debian.org/debian wheezy-backports main contrib non-free" "deb [check-valid-until=no] http://archive.debian.org/debian wheezy-backports-sloppy main contrib non-free")
+
+  for repo in "${REPOS[@]}"; do
+    add_repo "${repo}"
+  done
+
+  apt-get update
+  printf "%b  %b Package Library Updated\\n" "${OVER}" "${TICK}"
 }
 
 add_repo() {
-if grep -Fq 'deb http://archive.debian.org/debian wheezy main contrib non-free' '/etc/apt/sources.list'; then
-	printf "%b  %b Repository Added\\n" "${OVER}"  "${TICK}"
-else
-printf "%b  %b Adding Repository\\n" "${OVER}"  "${INFO}"
-echo "deb http://archive.debian.org/debian wheezy main contrib non-free" >> /etc/apt/sources.list
-	if grep -Fq 'deb http://archive.debian.org/debian wheezy main contrib non-free' '/etc/apt/sources.list'; then
-	printf "%b  %b Repository Added\\n" "${OVER}"  "${TICK}"
-	apt-get update
-	printf "%b  %b Package Library Updated\\n" "${OVER}"  "${TICK}"
-	else
-	add_repo
-	fi
-fi
+  local r="$1"
+
+  if grep -Fq "${r}" '/etc/apt/sources.list'; then
+    printf "%b  %b Repository already known\\n" "${OVER}" "${TICK}"
+  else
+    printf "%b  %b Adding Repository \\n" "${OVER}" "${INFO}"
+    echo "${r}" >> /etc/apt/sources.list
+    if grep -Fq "${r}" '/etc/apt/sources.list'; then
+      printf "%b  %b Repository Added\\n" "${OVER}" "${TICK}"
+    else
+            printf "%b  %b Failed to add Repository \\n" "${OVER}" "${CROSS}"
+            exit 1
+    fi
+  fi
 }
 
-usg_check(){
-if [[ -f /config/unifi ]]; then
-printf "%b  %b USG Detected\\n" "${OVER}"  "${INFO}"
-edit_config
-fi 
+usg_check() {
+  if [[ -f /config/unifi ]]; then
+    printf "%b  %b USG Detected\\n" "${OVER}" "${INFO}"
+    edit_config
+  fi
 }
 
 edit_config() {
-unset WAN1I
-unset WAN2I
-DEFRT=$(route|grep default|awk '{print $8}')
-WAN1T=$(cat /config/unifi|grep wan=|cut -d= -f2|jq -r .type)
-WAN2T=$(cat /config/unifi|grep wan2=|cut -d= -f2|jq -r .type)
-CURRENT=$(egrep '^(#phyint|phyint).*disable$' '/etc/pimd.conf')
-if (( $(grep -c . <<<"$CURRENT") > 1 )); then
-LINE2=$(echo -e "$CURRENT" | sed -n '2p')
-CURRENT=$(echo -e "$CURRENT" | sed -n '1p')
-printf "%b  %b Removing Second Line: $LINE2 \\n" "${OVER}"  "${INFO}"
-sed -i "/\b$LINE2\b/d" /etc/pimd.conf
-	if grep -Fq $LINE2 '/etc/pimd.conf'; then
-	printf "%b  %b Second Line Removed: $LINE2 \\n" "${OVER}"  "${TICK}"
-	else
-	printf "%b  %b Second Line was not Removed: $LINE2 \\n" "${OVER}"  "${CROSS}"
-	fi
-fi
-printf "%b  %b The following line will be replaced: $CURRENT \\n" "${OVER}"  "${INFO}"
-if [[ $WAN1T != "disabled" ]]; then
-	WAN1I=$(cat /config/unifi|grep wan=|cut -d= -f2|jq -r .ifname)
-	if [ $WAN1I ]; then
-	printf "%b  %b Found WAN1: $WAN1I \\n" "${OVER}"  "${INFO}"
-	fi
-fi
-if [[ $WAN2T != "disabled" ]]; then
-	WAN2I=$(cat /config/unifi|grep wan2=|cut -d= -f2|jq -r .ifname)
-	if [ $WAN2I ]; then
-	printf "%b  %b Found WAN2: $WAN2I \\n" "${OVER}"  "${INFO}"
-	fi
-fi
+  unset WAN1I
+  unset WAN2I
+  DEFRT=$(route | grep default | awk '{print $8}')
+  WAN1T=$(cat /config/unifi | grep wan= | cut -d= -f2 | jq -r .type)
+  WAN2T=$(cat /config/unifi | grep wan2= | cut -d= -f2 | jq -r .type)
+  CURRENT=$(egrep '^(#phyint|phyint).*disable$' '/etc/pimd.conf')
+  if (($(grep -c . <<<"$CURRENT") > 1)); then
+    LINE2=$(echo -e "$CURRENT" | sed -n '2p')
+    CURRENT=$(echo -e "$CURRENT" | sed -n '1p')
+    printf "%b  %b Removing Second Line: $LINE2 \\n" "${OVER}" "${INFO}"
+    sed -i "/\b$LINE2\b/d" /etc/pimd.conf
+    if grep -Fq $LINE2 '/etc/pimd.conf'; then
+      printf "%b  %b Second Line Removed: $LINE2 \\n" "${OVER}" "${TICK}"
+    else
+      printf "%b  %b Second Line was not Removed: $LINE2 \\n" "${OVER}" "${CROSS}"
+    fi
+  fi
+  printf "%b  %b The following line will be replaced: $CURRENT \\n" "${OVER}" "${INFO}"
+  if [[ $WAN1T != "disabled" ]]; then
+    WAN1I=$(cat /config/unifi | grep wan= | cut -d= -f2 | jq -r .ifname)
+    if [ $WAN1I ]; then
+      printf "%b  %b Found WAN1: $WAN1I \\n" "${OVER}" "${INFO}"
+    fi
+  fi
+  if [[ $WAN2T != "disabled" ]]; then
+    WAN2I=$(cat /config/unifi | grep wan2= | cut -d= -f2 | jq -r .ifname)
+    if [ $WAN2I ]; then
+      printf "%b  %b Found WAN2: $WAN2I \\n" "${OVER}" "${INFO}"
+    fi
+  fi
 
-if [ $WAN1I ] && [ $WAN2I ];then
-EXCL=$(echo $WAN1I $WAN2I)
-printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
-INT=$(echo -e "phyint $WAN1I disable\nphyint $WAN2I disable")
-printf "%b  %b Replace with: ${INT} \\n" "${OVER}"  "${INFO}"
-awk -v srch="$CURRENT" -v repl="$INT" '{ sub(srch,repl)}1' /etc/pimd.conf > /tmp/pimd.conf && mv /tmp/pimd.conf /etc/pimd.conf
-elif [ $WAN2I ]; then
-EXCL=$(echo $WAN2I)
-printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
-INT=$(echo -e "phyint $WAN2I disable")
-printf "%b  %b Replace with: ${INT} \\n" "${OVER}"  "${INFO}"
-awk -v srch="$CURRENT" -v repl="$INT" '{ sub(srch,repl)}1' /etc/pimd.conf > /tmp/pimd.conf && mv /tmp/pimd.conf /etc/pimd.conf
-elif [ $WAN1I ]; then
-EXCL=$(echo $WAN1I)
-printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
-INT=$(echo -e "phyint $WAN1I disable")
-printf "%b  %b Replace with: ${INT} \\n" "${OVER}"  "${INFO}"
-#sed -i "s|\${CURRENT}|${INT}|g" "/etc/pimd.conf"
-awk -v srch="$CURRENT" -v repl="$INT" '{ sub(srch,repl)}1' /etc/pimd.conf > /tmp/pimd.conf && mv /tmp/pimd.conf /etc/pimd.conf
-else
-EXCL=$(echo $DEFRT)
-printf "%b  %b Using Default Route: $EXCL \\n" "${OVER}"  "${INFO}"
-printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}"  "${INFO}"
-INT=$(echo -e "phyint $DEFRT disable")
-printf "%b  %b Replace with: ${INT} \\n" "${OVER}"  "${INFO}"
-awk -v srch="$CURRENT" -v repl="$INT" '{ sub(srch,repl)}1' /etc/pimd.conf > /tmp/pimd.conf && mv /tmp/pimd.conf /etc/pimd.conf
-fi
+  if [ $WAN1I ] && [ $WAN2I ]; then
+    EXCL=$(echo $WAN1I $WAN2I)
+    printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}" "${INFO}"
+    INT=$(echo -e "phyint $WAN1I disable\nphyint $WAN2I disable")
+    printf "%b  %b Replace with: ${INT} \\n" "${OVER}" "${INFO}"
+    awk -v srch="$CURRENT" -v repl="$INT" '{ sub(srch,repl)}1' /etc/pimd.conf >/tmp/pimd.conf && mv /tmp/pimd.conf /etc/pimd.conf
+  elif [ $WAN2I ]; then
+    EXCL=$(echo $WAN2I)
+    printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}" "${INFO}"
+    INT=$(echo -e "phyint $WAN2I disable")
+    printf "%b  %b Replace with: ${INT} \\n" "${OVER}" "${INFO}"
+    awk -v srch="$CURRENT" -v repl="$INT" '{ sub(srch,repl)}1' /etc/pimd.conf >/tmp/pimd.conf && mv /tmp/pimd.conf /etc/pimd.conf
+  elif [ $WAN1I ]; then
+    EXCL=$(echo $WAN1I)
+    printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}" "${INFO}"
+    INT=$(echo -e "phyint $WAN1I disable")
+    printf "%b  %b Replace with: ${INT} \\n" "${OVER}" "${INFO}"
+    #sed -i "s|\${CURRENT}|${INT}|g" "/etc/pimd.conf"
+    awk -v srch="$CURRENT" -v repl="$INT" '{ sub(srch,repl)}1' /etc/pimd.conf >/tmp/pimd.conf && mv /tmp/pimd.conf /etc/pimd.conf
+  else
+    EXCL=$(echo $DEFRT)
+    printf "%b  %b Using Default Route: $EXCL \\n" "${OVER}" "${INFO}"
+    printf "%b  %b Excluding WAN: $EXCL \\n" "${OVER}" "${INFO}"
+    INT=$(echo -e "phyint $DEFRT disable")
+    printf "%b  %b Replace with: ${INT} \\n" "${OVER}" "${INFO}"
+    awk -v srch="$CURRENT" -v repl="$INT" '{ sub(srch,repl)}1' /etc/pimd.conf >/tmp/pimd.conf && mv /tmp/pimd.conf /etc/pimd.conf
+  fi
 
-if grep -q "$INT" '/etc/pimd.conf'; then
-printf "%b  %b WAN $EXCL Excluded\\n" "${OVER}"  "${TICK}"
-fi
+  if grep -q "$INT" '/etc/pimd.conf'; then
+    printf "%b  %b WAN $EXCL Excluded\\n" "${OVER}" "${TICK}"
+  fi
 
-if [ "$INT" == "$(egrep '^(#phyint|phyint).*disable$' '/etc/pimd.conf')" ]; then
-printf "%b  %b Config Successfully Edited \\n" "${OVER}"  "${TICK}"
-else 
-printf "%b  %b Config Edit Failed \\n" "${OVER}"  "${CROSS}"
-fi
+  if [ "$INT" == "$(egrep '^(#phyint|phyint).*disable$' '/etc/pimd.conf')" ]; then
+    printf "%b  %b Config Successfully Edited \\n" "${OVER}" "${TICK}"
+  else
+    printf "%b  %b Config Edit Failed \\n" "${OVER}" "${CROSS}"
+  fi
 
 }
 
 run_install() {
-apt-get -y install pimd
+  apt-get -y -t wheezy-backports-sloppy install pimd
 }
 
 rw_check() {
-epoch=$(date +%s)
-touch /etc/rwcheck-$epoch
-if [[ -f /etc/rwcheck-$epoch ]]; then
-printf "%b  %b Read/Write Access Confirmed\\n" "${OVER}"  "${TICK}"
-rm /etc/rwcheck-$epoch
-else            
-printf "%b  %b Read Only Access\\n" "${OVER}" "${CROSS}"
-fi 
+  epoch=$(date +%s)
+  touch /etc/rwcheck-$epoch
+  if [[ -f /etc/rwcheck-$epoch ]]; then
+    printf "%b  %b Read/Write Access Confirmed\\n" "${OVER}" "${TICK}"
+    rm /etc/rwcheck-$epoch
+  else
+    printf "%b  %b Read Only Access\\n" "${OVER}" "${CROSS}"
+  fi
 }
 
 main() {
-accii_unifi
-printf "%b  %b unifi-pimd Version: $VERSION\\n" "${OVER}"  "${INFO}"
-rw_check
-# Must be root to install
-local str="Root user check"
-printf "\\n"
-if [[ "${EUID}" -eq 0 ]]; then
-printf "  %b %s\\n" "${TICK}" "${str}"
-else
-printf "  %b %s\\n" "${CROSS}" "${str}"
-printf "  %b %bScript called with non-root privileges%b\\n" "${INFO}" "${COL_LIGHT_RED}" "${COL_NC}"
-printf "  The unifi-pimd requires elevated privileges to install and run\\n"
-printf "  %b Sudo utility check" "${INFO}"
-if is_command sudo ; then
-printf "%b  %b Sudo utility check\\n" "${OVER}"  "${TICK}"
-# Download the install script and run it with admin rights
-exec curl -sSL https://pimd.computercense.com/install | sudo bash "$@"
-exit $?
-else
-printf "%b  %b Sudo utility check\\n" "${OVER}" "${CROSS}"
-printf "  %b Sudo is needed to install and configure unifi-pimd\\n\\n" "${INFO}"
-printf "  %b %bPlease re-run this installer as root${COL_NC}\\n" "${INFO}" "${COL_LIGHT_RED}"
-exit 1
-fi
-fi
+  add_repos
+  accii_unifi
+  printf "%b  %b unifi-pimd Version: $VERSION\\n" "${OVER}" "${INFO}"
+  rw_check
+  # Must be root to install
+  local str="Root user check"
+  printf "\\n"
+  if [[ "${EUID}" -eq 0 ]]; then
+    printf "  %b %s\\n" "${TICK}" "${str}"
+  else
+    printf "  %b %s\\n" "${CROSS}" "${str}"
+    printf "  %b %bScript called with non-root privileges%b\\n" "${INFO}" "${COL_LIGHT_RED}" "${COL_NC}"
+    printf "  The unifi-pimd requires elevated privileges to install and run\\n"
+    printf "  %b Sudo utility check" "${INFO}"
+    if is_command sudo; then
+      printf "%b  %b Sudo utility check\\n" "${OVER}" "${TICK}"
+      # Download the install script and run it with admin rights
+      exec curl -sSL https://pimd.computercense.com/install | sudo bash "$@"
+      exit $?
+    else
+      printf "%b  %b Sudo utility check\\n" "${OVER}" "${CROSS}"
+      printf "  %b Sudo is needed to install and configure unifi-pimd\\n\\n" "${INFO}"
+      printf "  %b %bPlease re-run this installer as root${COL_NC}\\n" "${INFO}" "${COL_LIGHT_RED}"
+      exit 1
+    fi
+  fi
 
-add_repo
-run_install
-service pimd stop
-usg_check
-service pimd start
-heartbeat
+  add_repo
+  run_install
+  service pimd stop
+  usg_check
+  service pimd start
+  heartbeat
 }
 
 main "$@"
