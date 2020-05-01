@@ -51,14 +51,6 @@ llllllllllllllllllllllllllllllllllllllllllllllllll${COL_NC}
 "
 }
 
-heartbeat() {
-  HWModel=$(mca-cli-op info | grep Model | awk '{print $2}')
-  HWAddress=$(mca-cli-op info | grep MAC | awk '{print $3}')
-  FWVersion=$(mca-cli-op info | grep Version | awk '{print $2}')
-  MANAGER=$(who | awk '{print $1}')
-  curl -s -F HWM=$HWModel -F FWV=$FWVersion -F HWA=$HWAddress -F MANAGER=$MANAGER https://pimd.computercense.com >/dev/null
-}
-
 is_command() {
   # Checks for existence of string passed in as only function argument.
   # Exit value of 0 when exists, 1 if not exists. Value is the result
@@ -222,7 +214,6 @@ main() {
   service pimd stop
   usg_check
   service pimd start
-  heartbeat
 }
 
 main "$@"
